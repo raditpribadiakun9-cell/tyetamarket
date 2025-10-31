@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tyeta Market</title>
+<style>
+  /* font */
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  :root{
+    --g1: #00f0ff;
+    --g2: #a000ff;
+    --card-bg: rgba(15,10,30,0.75);
+    --accent: linear-gradient(90deg,var(--g1),var(--g2));
+  }
+
+  /* Body & background galaksi pelan */
+  html,body{height:100%;margin:0;padding:0;overflow-x:hidden;background:#000;}
+  .galaxy {
+    position:fixed; inset:-20% -20% -20% -20%; z-index:-2;
+    background-image: url('https://cdn.pixabay.com/photo/2013/07/18/10/56/space-163707_1280.jpg');
+    background-size: cover;
+    filter: contrast(1) brightness(.6);
+    animation: spin 240s linear infinite;
+    transform-origin:center;
+  }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  /* Header title (glow gradient) */
+  h1{
+    text-align:center; margin:18px 12px 6px; font-family:'Poppins',sans-serif;
+    background: linear-gradient(45deg,var(--g1),var(--g2));
+    -webkit-background-clip:text; color:transparent;
+    text-shadow:0 0 10px rgba(160,0,255,0.12), 0 0 20px rgba(0,240,255,0.06);
+    font-size:1.8rem;
+  }
+
+  /* Layout produk grid */
+  .wrap{padding:12px; max-width:1100px; margin:0 auto;}
+  .tabs{display:flex; gap:8px; justify-content:center; margin:10px 0;}
+  .tab{
+    background:rgba(255,255,255,0.03); padding:8px 14px; border-radius:20px; cursor:pointer;
+    color:#dfeaff; font-weight:600; font-size:0.95rem; transition:all .25s;
+    border:1px solid rgba(160,0,255,0.06);
+  }
+  .tab.active{ box-shadow:0 8px 30px rgba(160,0,255,0.18); transform:translateY(-3px); background:rgba(255,255,255,0.04); }
+
+  .grid{
+    display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+    gap:14px; margin:14px 0 90px;
+  }
+
+  /* Product card (neon glowing) */
+  .card{
+    background: var(--card-bg);
+    border-radius:14px; padding:14px; text-align:center; position:relative;
+    border:1px solid rgba(0,240,255,0.06);
+    box-shadow:0 10px 30px rgba(0,0,0,0.6), 0 0 30px rgba(160,0,255,0.06) inset;
+    overflow:visible;
+    transition:transform .25s, box-shadow .25s;
+  }
+  .card:hover{ transform:translateY(-6px); box-shadow:0 18px 50px rgba(160,0,255,0.12); }
+
+  .card h3{
+    margin:8px 0 6px; font-size:1.05rem; font-weight:700;
+    background: linear-gradient(90deg,var(--g1),var(--g2)); -webkit-background-clip:text; color:transparent;
+  }
+  .price{
+    margin:6px 0 12px; font-weight:700; font-size:1rem;
+    background: linear-gradient(90deg,var(--g1),var(--g2)); -webkit-background-clip:text; color:transparent;
+  }
+
+  .btn {
+    display:inline-block; padding:9px 14px; border-radius:12px; cursor:pointer;
+    border: none; color:#fff; font-weight:700; font-size:0.95rem;
+    background: linear-gradient(90deg,var(--g1),var(--g2));
+    box-shadow:0 8px 20px rgba(0,240,255,0.12);
+    transition:transform .14s, box-shadow .14s;
+  }
+  .btn:active{ transform:translateY(2px); }
+  .btn.small{ padding:6px 10px; border-radius:10px; font-size:0.88rem; }
+
+  /* floating cart icon (small) */
+  .cart-btn {
+    position:fixed; right:14px; bottom:18px; z-index:1200;
+    width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(135deg, rgba(0,240,255,0.12), rgba(160,0,255,0.12));
+    box-shadow:0 8px 30px rgba(160,0,255,0.18), 0 4px 12px rgba(0,0,0,0.6);
+    cursor:pointer; border:1px solid rgba(255,255,255,0.06);
+    font-size:22px; color:#dfeaff;
+  }
+  .cart-count{
+    position:absolute; right:-6px; top:-6px; background:var(--g1); color:#000;
+    font-weight:700; font-size:0.75rem; padding:3px 6px; border-radius:12px; box-shadow:0 6px 12px rgba(0,0,0,0.5);
+  }
+
+  /* hidden cart panel (slide up) */
+  .cart-panel {
+    position:fixed; right:12px; bottom:86px; width:320px; max-width:92%; z-index:1199;
+    background:rgba(8,6,20,0.92); border-radius:12px; padding:12px; box-shadow:0 18px 50px rgba(0,0,0,0.6);
+    border:1px solid rgba(160,0,255,0.08); display:none;
+  }
+  .cart-panel.show{ display:block; animation:pop .22s ease; }
+  @keyframes pop { from{ transform:translateY(8px) scale(.98); opacity:0 } to{ transform:none; opacity:1 } }
+
+  .cart-panel h4{ margin:6px 0 8px; color:var(--g1); font-weight:700; }
+  .cart-list{ max-height:240px; overflow:auto; margin-bottom:8px; padding:6px 0; }
+  .cart-item{ display:flex; justify-content:space-between; padding:8px 4px; border-bottom:1px solid rgba(255,255,255,0.03); color:#cfecff; font-size:0.95rem; }
+
+  .cart-total{ text-align:right; margin-top:8px; font-weight:800; color:var(--g2); font-size:1rem; }
+
+  .pay-list{ margin-top:10px; display:flex; flex-direction:column; gap:8px; }
+
+  .pay-btn {
+    width:100%; padding:10px; border-radius:10px; border:none; color:#fff; font-weight:800;
+    background: linear-gradient(90deg,var(--g1),var(--g2)); cursor:pointer;
+    box-shadow:0 10px 30px rgba(0,240,255,0.08);
+  }
+
+  /* notification */
+  .notif {
+    position:fixed; left:50%; transform:translateX(-50%); bottom:96px; z-index:1300;
+    background: linear-gradient(90deg, rgba(0,240,255,0.12), rgba(160,0,255,0.12));
+    padding:8px 14px; border-radius:999px; color:#dffaff; display:none; box-shadow:0 10px 30px rgba(0,0,0,0.6);
+  }
+
+  /* responsive smaller screens adjustments */
+  @media (max-width:520px){
+    .cart-panel{ right:8px; bottom:80px; width:92%; left:8px; }
+    .cart-btn{ width:50px; height:50px; font-size:20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="galaxy" aria-hidden="true"></div>
+
+<h1>Tyeta Market</h1>
+
+<div class="wrap">
+  <div class="tabs">
+    <div class="tab active" data-tab="panel">Panel Pterodactyl</div>
+    <div class="tab" data-tab="apps">Aplikasi Premium</div>
+  </div>
+
+  <div id="grid-panel" class="grid"></div>
+  <div id="grid-apps" class="grid" style="display:none;"></div>
+</div>
+
+<!-- small floating cart icon -->
+<div class="cart-btn" id="cartBtn" title="Keranjang">
+  🛒 <span class="cart-count" id="cartCount">0</span>
+</div>
+
+<!-- hidden cart panel (toggle by clicking cartBtn) -->
+<div class="cart-panel" id="cartPanel" aria-hidden="true">
+  <h4>Keranjang</h4>
+  <div class="cart-list" id="cartList"></div>
+  <div class="cart-total" id="cartTotal">Total: Rp 0</div>
+
+  <div class="pay-list" id="payList" style="display:none;">
+    <button class="pay-btn" id="payDana">Bayar via DANA</button>
+    <button class="pay-btn" id="payGopay">Bayar via GOPAY</button>
+    <button class="pay-btn" id="paySea">Bayar via SEA BANK</button>
+    <button class="pay-btn" id="payQris">QRIS</button>
+    <button class="pay-btn" id="contactAdmin" style="background:rgba(255,255,255,0.06); color:#fff; box-shadow:none; font-weight:700;">Hubungi Admin (WhatsApp)</button>
+  </div>
+  <div style="text-align:center; margin-top:8px;">
+    <button class="btn small" id="closeCartBtn" style="background:rgba(255,255,255,0.03); color:#dfeaff; border:1px solid rgba(255,255,255,0.03);">Tutup</button>
+  </div>
+</div>
+
+<div class="notif" id="notif">Produk berhasil ditambahkan</div>
+
+<script>
+/* === Data produk === */
+const panels = [];
+for(let i=1;i<=10;i++){
+  panels.push({ name:`Panel Pterodactyl ${i} GB`, price: 1000 + (i-1)*750, emoji:'🛰️' });
+}
+panels.push({ name:'Panel Unlimited', price:9990, emoji:'🌌' });
+
+const apps = [
+  { name:'Aplikasi Edit Logo JB', price:2499, emoji:'🎨' },
+  { name:'Aplikasi Auto Save Kontak', price:2750, emoji:'📱' }
+];
+
+/* === Elements === */
+const gridPanel = document.getElementById('grid-panel');
+const gridApps  = document.getElementById('grid-apps');
+const cartBtn   = document.getElementById('cartBtn');
+const cartPanel = document.getElementById('cartPanel');
+const cartList  = document.getElementById('cartList');
+const cartTotal = document.getElementById('cartTotal');
+const cartCountEl = document.getElementById('cartCount');
+const notif = document.getElementById('notif');
+const payList = document.getElementById('payList');
+
+/* === Render produk ke grid === */
+function createCard(item, idx, type){
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div style="font-size:22px">${item.emoji}</div>
+    <h3>${item.name}</h3>
+    <div class="price">Rp ${numberWithSeparators(item.price)}</div>
+    <button class="btn" data-idx="${idx}" data-type="${type}">Tambah ke Keranjang</button>
+  `;
+  return card;
+}
+function numberWithSeparators(x){ return x.toLocaleString(); }
+
+panels.forEach((p,i)=> gridPanel.appendChild(createCard(p,i,'panel')));
+apps.forEach((a,i)=> gridApps.appendChild(createCard(a,i,'apps')));
+
+/* === tab switching === */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',(e)=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+    const tab = e.currentTarget.dataset.tab;
+    if(tab==='panel'){ gridPanel.style.display='grid'; gridApps.style.display='none'; }
+    else { gridPanel.style.display='none'; gridApps.style.display='grid'; }
+    // small animation hint
+    e.currentTarget.animate([{transform:'translateY(0)'},{transform:'translateY(-6px)'},{transform:'translateY(0)'}],{duration:260});
+  });
+});
+
+/* === Cart logic === */
+let cart = [];
+
+function updateCartUI(){
+  cartList.innerHTML = '';
+  if(cart.length===0){
+    cartList.innerHTML = `<div style="color:#aabbdc; padding:8px;">Keranjang kosong</div>`;
+    payList.style.display = 'none';
+    cartTotal.textContent = 'Total: Rp 0';
+  } else {
+    cart.forEach((it,idx)=>{
+      const el = document.createElement('div');
+      el.className = 'cart-item';
+      el.innerHTML = `<div style="max-width:70%;">${it.emoji} ${it.name}</div><div>Rp ${numberWithSeparators(it.price)}</div>`;
+      cartList.appendChild(el);
+    });
+    const total = cart.reduce((s,i)=>s+i.price,0);
+    cartTotal.textContent = `Total: Rp ${numberWithSeparators(total)}`;
+    payList.style.display = 'block';
+  }
+  cartCountEl.textContent = cart.length;
+}
+
+/* add to cart with subtle animation */
+document.body.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.btn');
+  if(!btn) return;
+  const idx = parseInt(btn.dataset.idx);
+  const type = btn.dataset.type;
+  let item;
+  if(type==='panel') item = panels[idx];
+  else item = apps[idx];
+  // push to cart
+  cart.push(item);
+  // small clone animation to cart button
+  const card = btn.closest('.card');
+  const clone = card.cloneNode(true);
+  const rect = card.getBoundingClientRect();
+  clone.style.position='fixed';
+  clone.style.left = rect.left + 'px';
+  clone.style.top  = rect.top + 'px';
+  clone.style.width = rect.width + 'px';
+  clone.style.height = rect.height + 'px';
+  clone.style.margin = '0';
+  clone.style.zIndex = 9999;
+  clone.style.transition = 'all 700ms cubic-bezier(.2,.9,.2,1)';
+  document.body.appendChild(clone);
+  // destination (cartBtn center)
+  const cartRect = cartBtn.getBoundingClientRect();
+  setTimeout(()=>{
+    clone.style.left = (cartRect.left + cartRect.width/2 - rect.width*0.12) + 'px';
+    clone.style.top  = (cartRect.top + cartRect.height/2 - rect.height*0.12) + 'px';
+    clone.style.transform = 'scale(0.12)';
+    clone.style.opacity = '0.9';
+  },20);
+  setTimeout(()=> clone.remove(),800);
+
+  updateCartUI();
+  showNotif();
+});
+
+/* show notif */
+function showNotif(){
+  notif.style.display='block';
+  notif.animate([{opacity:0, transform:'translateY(6px)'},{opacity:1, transform:'translateY(0)'}],{duration:250});
+  setTimeout(()=>{ notif.animate([{opacity:1},{opacity:0}],{duration:300}); setTimeout(()=>notif.style.display='none',300); },1200);
+}
+
+/* toggle cart panel visible only when cartBtn clicked */
+cartBtn.addEventListener('click', ()=>{
+  const isShown = cartPanel.classList.contains('show');
+  if(isShown) cartPanel.classList.remove('show'); else {
+    updateCartUI();
+    cartPanel.classList.add('show');
+  }
+});
+
+/* close button inside cart */
+document.getElementById('closeCartBtn').addEventListener('click', ()=> cartPanel.classList.remove('show') );
+
+/* Payment handlers (open link/app) */
+document.getElementById('payDana').addEventListener('click', ()=>{
+  // DANA url; fallback to https if scheme not supported
+  const url = 'https://link.dana.id/transfer?phone=089603266259';
+  window.open(url,'_blank');
+});
+document.getElementById('payGopay').addEventListener('click', ()=>{
+  const url = 'https://link.gopay.me/08993360673';
+  window.open(url,'_blank');
+});
+document.getElementById('paySea').addEventListener('click', ()=>{
+  // show SeaBank website (no direct transfer link assumed)
+  window.open('https://seabank.co.id','_blank');
+});
+document.getElementById('payQris').addEventListener('click', ()=>{
+  window.open('https://drive.google.com/file/d/1tSwawWO9hDp4GHPDuYJSbe1_85g6naER/view?usp=drivesdk','_blank');
+});
+
+/* contact admin via WhatsApp with TRX generated */
+document.getElementById('contactAdmin').addEventListener('click', ()=>{
+  if(cart.length===0){ alert('Keranjang kosong!'); return; }
+  const total = cart.reduce((s,i)=>s+i.price,0);
+  const productNames = cart.map(i=>i.name).join(', ');
+  const now = new Date();
+  const trx = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+  const message = `Hai admin TYETA, ini ID TRX: ${trx}%0AProduk: ${productNames}%0ATotal: Rp ${total.toLocaleString()}`;
+  window.open(`https://wa.me/6289603266259?text=${message}`,'_blank');
+});
+
+/* initial render cart */
+updateCartUI();
+
+/* prevent accidental overlapping scrolling on cart list on mobile */
+cartList.addEventListener('touchstart', e=> e.stopPropagation());
+
+</script>
+</body>
+</html>
