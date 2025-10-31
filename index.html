@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tyeta Market</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+    overflow-x: hidden;
+    background: radial-gradient(circle at center, #0b0033, #000010 70%);
+    animation: rotateGalaxy 60s linear infinite;
+    background-size: 200% 200%;
+  }
+
+  @keyframes rotateGalaxy {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  h1 {
+    text-align: center;
+    margin: 20px;
+    font-size: 2em;
+    background: linear-gradient(45deg, #00f0ff, #a000ff);
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 10px #00f0ff, 0 0 20px #a000ff;
+  }
+
+  .container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 20px;
+  }
+
+  .product {
+    background: rgba(20, 20, 40, 0.8);
+    border: 1px solid rgba(100, 0, 255, 0.5);
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 20px rgba(100, 0, 255, 0.3);
+  }
+
+  .product:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 30px rgba(100, 0, 255, 0.6);
+  }
+
+  .product h3 {
+    margin: 10px 0;
+    font-size: 1.2em;
+    background: linear-gradient(45deg, #00f0ff, #a000ff);
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .price {
+    font-weight: bold;
+    background: linear-gradient(45deg, #00f0ff, #a000ff);
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  button {
+    margin-top: 10px;
+    background: linear-gradient(90deg, #00f0ff, #a000ff);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #00f0ff;
+  }
+
+  #cart {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: rgba(30, 0, 80, 0.8);
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 0 15px #a000ff;
+    width: 260px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  #cart h2 {
+    text-align: center;
+    margin: 5px;
+    font-size: 1.1em;
+    background: linear-gradient(45deg, #00f0ff, #a000ff);
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+  }
+
+  #checkout {
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  .payment-btn {
+    display: block;
+    margin: 5px auto;
+    width: 80%;
+    background: linear-gradient(90deg, #00f0ff, #a000ff);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .notif {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(30, 0, 60, 0.9);
+    padding: 10px 20px;
+    border-radius: 10px;
+    color: white;
+    box-shadow: 0 0 20px #a000ff;
+    display: none;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0); }
+  }
+
+  .product {
+    animation: float 5s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+
+<h1>Tyeta Market</h1>
+
+<div id="cart">
+  <h2>🛒 Keranjang</h2>
+  <div id="cart-items"></div>
+  <div id="checkout"></div>
+</div>
+
+<div class="container" id="products"></div>
+
+<div class="notif" id="notif">Produk berhasil ditambahkan ke keranjang 💫</div>
+
+<script>
+  const products = [];
+  for (let i = 1; i <= 10; i++) {
+    products.push({
+      name: `🛰️ Panel Pterodactyl ${i} GB`,
+      price: 1000 + (i - 1) * 750
+    });
+  }
+  products.push({ name: "🌌 Panel Unlimited", price: 9990 });
+  products.push({ name: "🎨 Aplikasi Edit Logo JB", price: 2499 });
+  products.push({ name: "📱 Aplikasi Auto Save Kontak", price: 2750 });
+
+  const container = document.getElementById("products");
+  const cartItems = document.getElementById("cart-items");
+  const checkoutDiv = document.getElementById("checkout");
+  const notif = document.getElementById("notif");
+
+  let cart = [];
+
+  products.forEach((p, index) => {
+    const div = document.createElement("div");
+    div.className = "product";
+    div.innerHTML = `
+      <h3>${p.name}</h3>
+      <p class="price">Rp ${p.price.toLocaleString()}</p>
+      <button onclick="addToCart(${index})">Tambah ke Keranjang</button>
+    `;
+    container.appendChild(div);
+  });
+
+  function addToCart(index) {
+    cart.push(products[index]);
+    renderCart();
+    showNotif();
+  }
+
+  function renderCart() {
+    cartItems.innerHTML = cart
+      .map(p => `<div class='cart-item'><span>${p.name}</span><span>Rp ${p.price.toLocaleString()}</span></div>`)
+      .join("");
+
+    if (cart.length > 0) {
+      const total = cart.reduce((a, b) => a + b.price, 0);
+      const trxId = new Date().toISOString().replace(/\D/g, "").slice(0, 14);
+      const productNames = cart.map(p => p.name).join(", ");
+      const waMessage = `Hai Admin TYETA, ini ID TRX ku: ${trxId}, bukti pembayaran produk: ${productNames}, total Rp ${total.toLocaleString()}`;
+      checkoutDiv.innerHTML = `
+        <p>Total: <b>Rp ${total.toLocaleString()}</b></p>
+        <button class='payment-btn' onclick="window.open('https://wa.me/6289603266259?text=${encodeURIComponent(waMessage)}')">Hubungi Admin</button>
+        <button class='payment-btn' onclick="window.open('https://link.dana.id/transfer/089603266259')">Bayar via DANA</button>
+        <button class='payment-btn' onclick="window.open('https://gojek.com/pay')">Bayar via GOPAY</button>
+        <button class='payment-btn' onclick="window.open('https://seabank.co.id')">Bayar via SEA BANK</button>
+        <button class='payment-btn' onclick="window.open('https://drive.google.com/file/d/1tSwawWO9hDp4GHPDuYJSbe1_85g6naER/view?usp=drivesdk')">Bayar via QRIS</button>
+      `;
+    } else {
+      checkoutDiv.innerHTML = "";
+    }
+  }
+
+  function showNotif() {
+    notif.style.display = "block";
+    setTimeout(() => notif.style.display = "none", 1500);
+  }
+</script>
+
+</body>
+</html>
